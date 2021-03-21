@@ -1,0 +1,28 @@
+---
+version: '2'
+services:
+  postgres:
+    image: postgres:10
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 1s
+      retries: 10
+  elixir:
+    build: .
+    container_name: elixir
+    ports: 
+      - "4000:4000"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST=postgres
+    stdin_open: true # docker run -i
+    tty: true # docker run -t
+    depends_on:
+      postgres:
+        condition: service_healthy
