@@ -19,7 +19,20 @@ defmodule TodoList do
 
 	def entries(todo_list, date) do
 		todo_list.entries
-		|> Stream.filter(fn {_, entry} -> (entry.date == date end)
+		|> Stream.filter(fn {_, entry} -> (entry.date == date) end)
 		|> Enum.map(fn {_, entry} -> entry end)
+	end
+end
+
+defmodule TodoList.CsvImporter do
+	def import(file) do
+		File.stream!(file) # line by line
+            |> Stream.map(&String.replace(&1, "\n", ""))
+            |> Stream.map(&String.split(&1, ",")) # split each line on comma
+            |> Stream.map(&IO.inspect(&1))
+            |> Stream.map(fn [date, content] -> %{datedate, content: content}end)
+            |> Stream.map(&IO.inspect(&1))
+            |> Enum.to_list()
+            |> TodoList.new()
 	end
 end
