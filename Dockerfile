@@ -6,7 +6,7 @@ RUN curl -fsSL "https://repo.archlinuxcn.org/x86_64/glibc-linux4-2.33-4-x86_64.p
 # Update everything
 RUN pacman -Syyu --noconfirm
 
-# Do everything inside the /elixir folder
+# Do everything else inside /elixir folder
 RUN mkdir /elixir
 WORKDIR /elixir
 
@@ -24,10 +24,15 @@ RUN pacman -S base-devel <<< '' --noconfirm
 RUN mix phx.new amazing --install
 RUN cd amazing
 
-# Fix postgres host name
-RUN sed -i 's/  hostname: "localhost",/  hostname: "postgres",/' amazing/config/dev.exs
-WORKDIR /elixir/amazing
+# Set up test environment in /testing folder
+WORKDIR /testing
+COPY ./Testing .
 
-# Loop to keep awake
+# Fix postgres host name
+WORKDIR /elixir
+RUN sed -i 's/  hostname: "localhost",/  hostname: "postgres",/' amazing/config/dev.exs
+
+# Loop to keep awake after moving to the amazing project folder
+WORKDIR /elixir/amazing
 CMD mix ecto.create && tail -f /dev/null
 # then run mix phx.server inside the container
